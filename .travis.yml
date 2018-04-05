@@ -8,8 +8,7 @@ stages:
 # defaults
 language: node_js
 node_js: '9'
-env:
-  - PATH=~/npm/node_modules/.bin:$PATH
+env: PATH=~/npm/node_modules/.bin:$PATH
 # `nvm install` happens before the cache is restored, which means
 # we must install our own npm elsewhere (`~/npm`)
 before_install: |
@@ -41,7 +40,7 @@ jobs:
       node_js: '4'
 
     - script: npm start test.bundle test.browser
-      install: npm ci
+      install: npm ci # we need the native modules here
       addons:
         artifacts:
           paths:
@@ -53,13 +52,18 @@ jobs:
     - stage: lint
       script: npm start lint
 
+    # smoke tests use default npm.
     - &smoke
       stage: smoke
+      env: null
+      before_install: true
       install: npm install --production
+      # `--opts /dev/null` means "ignore test/mocha.opts"
       script: ./bin/mocha --opts /dev/null --reporter spec test/sanity/sanity.spec.js
       cache:
         directories:
-          - ~/npm # cache npm@^5.8.0
+          - ~/.npm
+          - node_modules # npm install, unlike npm ci, doesn't wipe node_modules
 
     - <<: *smoke
       node_js: '8'
