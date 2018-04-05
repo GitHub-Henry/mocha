@@ -10,8 +10,14 @@ language: node_js
 node_js: '9'
 cache:
   directories:
-    - ~/.npm
-before_install: npm install -g npm@^5.8.0
+    - ~/.npm # cache npm's cache
+    - ~/npm # cache npm@^5.8.0
+env:
+  - NPM_CONFIG_PREFIX=~/npm
+  - PATH=~/npm/bin:$PATH
+
+before_install: |
+  if [[ ! -x ~/npm/bin/npm ]; then npm install -g npm@^5.8.0; else true; fi
 install: npm ci
 
 jobs:
