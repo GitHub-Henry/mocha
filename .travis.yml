@@ -21,6 +21,7 @@ before_install: |
     mkdir -p ~/npm
     cd ~/npm
     npm install npm@^5.8.0
+    cd -
   else
     true
   fi
