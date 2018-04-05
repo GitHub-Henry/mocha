@@ -13,11 +13,17 @@ cache:
     - ~/.npm # cache npm's cache
     - ~/npm # cache npm@^5.8.0
 env:
-  - NPM_CONFIG_PREFIX=~/npm
-  - PATH=~/npm/bin:$PATH
+  - PATH=~/npm/node_modules/.bin:$PATH
 
 before_install: |
-  if [[ ! -x ~/npm/bin/npm ]; then npm install -g npm@^5.8.0; else true; fi
+  if [[ ! -x ~/npm/node_modules/.bin/npm ]]
+  then
+    mkdir -p ~/npm
+    cd ~/npm
+    npm install npm@^5.8.0
+  else
+    true
+  fi
 install: npm ci
 
 jobs:
@@ -52,7 +58,9 @@ jobs:
       stage: smoke
       install: npm install --production
       script: ./bin/mocha --opts /dev/null --reporter spec test/sanity/sanity.spec.js
-      cache: false
+      cache:
+        directories:
+          - ~/npm # cache npm@^5.8.0
 
     - <<: *smoke
       node_js: '8'
