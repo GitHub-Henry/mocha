@@ -7,18 +7,21 @@ stages:
 
 # defaults
 language: node_js
-node_js: '9'
+node_js: '8.9.1' # preinstalled Node.js version
 cache:
   directories:
     - ~/.npm # cache npm's cache
     - ~/npm # cache npm@^5.8.0
 env:
   - PATH=~/npm/node_modules/.bin:$PATH
+# `nvm install` happens before the cache is restored, which means
+# we must install our own npm elsewhere (`~/npm`)
 before_install: |
+  nvm ls
   if [[ ! -x ~/npm/node_modules/.bin/npm ]]
   then
     cd ~/npm
-    npm install npm@^5.8.0
+    npm install npm
     cd -
   else
     true
@@ -29,10 +32,10 @@ jobs:
   include:
     - script: COVERAGE=1 npm start test.node
       after_success: npm start coveralls
+      node_js: '9'
 
     - &node
       script: npm start test.node
-      node_js: '8'
 
     - <<: *node
       node_js: '6'
